@@ -13,7 +13,10 @@ let imgTwo = document.getElementById('img-two');
 let imgThree = document.getElementById('img-three');
 
 let resultsBtn = document.getElementById('view-results-btn');
-let resultsList = document.getElementById('results-container');
+// let resultsList = document.getElementById('results-container');
+
+// Canvas element
+let canvasElem = document.getElementById('chart');
 
 // Constructor function
 function Duck(name, imgExtension = 'jpg') {
@@ -28,24 +31,39 @@ function randomIndex() {
   return Math.floor(Math.random() * prodArr.length);
 }
 
-function renderImg() {
-  // Display three unique images
-  let imgOneIndex = randomIndex();
-  let imgTwoIndex = randomIndex();
-  let imgThreeIndex = randomIndex();
+let indexArray = [];
 
-  // Ensure displayed images are all unique
-  while(imgOneIndex === imgTwoIndex || imgTwoIndex === imgThreeIndex || imgOneIndex === imgThreeIndex) {
-    imgTwoIndex = randomIndex();
-    imgThreeIndex = randomIndex();
+function renderImg() {
+
+
+ // Ensure displayed images are all unique
+  // while(imgOneIndex === imgTwoIndex || imgTwoIndex === imgThreeIndex || imgOneIndex === imgThreeIndex) {
+  //   imgOneIndex = randomIndex();
+  //   imgTwoIndex = randomIndex();
+  // }
+
+  while(indexArray.length < 6) {
+    let randomNum = randomIndex();
+    if(!indexArray.includes(randomNum)) {
+      indexArray.push(randomNum);
+    }
   }
+
+  indexArray.splice(0, 3);
+
+  // Display three unique images
+  let imgOneIndex = indexArray[0];
+  let imgTwoIndex = indexArray[1];
+  let imgThreeIndex = indexArray[2];
 
   imgOne.src = prodArr[imgOneIndex].img;
   imgTwo.src = prodArr[imgTwoIndex].img;
   imgThree.src = prodArr[imgThreeIndex].img;
+
   imgOne.title = prodArr[imgOneIndex].name;
   imgTwo.title = prodArr[imgTwoIndex].name;
   imgThree.title = prodArr[imgThreeIndex].name;
+
   imgOne.alt = `this is an image of ${prodArr[imgOneIndex].name}`;
   imgTwo.alt = `this is an image of ${prodArr[imgTwoIndex].name}`;
   imgThree.alt = `this is an image of ${prodArr[imgThreeIndex].name}`;
@@ -54,6 +72,48 @@ function renderImg() {
   prodArr[imgOneIndex].views++;
   prodArr[imgTwoIndex].views++;
   prodArr[imgThreeIndex].views++;
+}
+
+// Render chart
+function renderChart() {
+  let prodNames = [];
+  let prodVotes = [];
+  let prodViews = [];
+
+  for(let i = 0; i < prodArr.length; i++) {
+    prodNames.push(prodArr[i].name);
+    prodVotes.push(prodArr[i].votes);
+    prodViews.push(prodArr[i].views);
+  }
+  
+  let chartObj = {
+    type: 'bar',
+    data: {
+      labels: prodNames,
+      datasets: [{
+        label: 'Number of Votes',
+        data: prodVotes,
+        borderWidth: 1,
+        backgroundColor: 'aqua'
+      },
+      {
+        label: 'Number of Views',
+        data: prodViews,
+        borderWidth: 1,
+        backgroundColor: 'white'
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  };
+
+  // Pass in canvas element
+  new Chart(canvasElem, chartObj);
 }
 
 // Event handlers
@@ -79,20 +139,23 @@ function handleClick(event) {
   // Once voting rounds have ended, do not allow any more clicks
   if(votingRnds === 0) {
     imgContainer.removeEventListener('click', handleClick);
+    alert('Max votes reached!');
   }
 }
 
 function handleShowResults() {
   // Display results once voting rounds have reached zero
   if(votingRnds === 0) {
-    for(let i = 0; i < prodArr.length; i++) {
-      let liElem = document.createElement('li');
-      liElem.textContent = `${prodArr[i].name} had ${prodArr[i].votes} votes, and was seen ${prodArr[i].views} times`;
 
-      resultsList.appendChild(liElem);
-    }
+    renderChart();
+    // for(let i = 0; i < prodArr.length; i++) {
+    //   let liElem = document.createElement('li');
+    //   liElem.textContent = `${prodArr[i].name} had ${prodArr[i].votes} votes, and was seen ${prodArr[i].views} times`;
 
-    resultsBtn.removeEventListener('click', handleShowResults);
+    //   resultsList.appendChild(liElem);
+    // }
+
+    // resultsBtn.removeEventListener('click', handleShowResults);
   }
 }
 
