@@ -56,6 +56,11 @@ function renderImg() {
   let imgTwoIndex = indexArray[1];
   let imgThreeIndex = indexArray[2];
 
+  // ***** ANOTHER SOLUTION -- CLEANER *****
+  // let imgOneIndex = indexArray.shift();
+  // let imgTwoIndex = indexArray.shift();
+  // let imgThreeIndex = indexArray.shift();
+  
   imgOne.src = prodArr[imgOneIndex].img;
   imgTwo.src = prodArr[imgTwoIndex].img;
   imgThree.src = prodArr[imgThreeIndex].img;
@@ -140,6 +145,14 @@ function handleClick(event) {
   if(votingRnds === 0) {
     imgContainer.removeEventListener('click', handleClick);
     alert('Max votes reached!');
+
+    // Local storage -- STEP 1 -- stringify data for local storage
+    let stringifiedProd = JSON.stringify(prodArr);
+
+    console.log('Stringified Products', stringifiedProd);
+
+    // Local storage -- STEP 2 -- set to local storage
+    localStorage.setItem('myProds', stringifiedProd);
   }
 }
 
@@ -160,27 +173,58 @@ function handleShowResults() {
 }
 
 // Executable code
-let bag = new Duck('bag');
-let banana = new Duck('banana');
-let bathroom = new Duck('bathroom');
-let boots = new Duck('boots');
-let breakfast = new Duck('breakfast');
-let bubblegum = new Duck('bubblegum');
-let chair = new Duck('chair');
-let cthulhu = new Duck('cthulhu');
-let dogDuck = new Duck('dog-duck');
-let dragon = new Duck('dragon');
-let pen = new Duck('pen');
-let petSweep = new Duck('pet-sweep');
-let scissors = new Duck('scissors');
-let shark = new Duck('shark');
-let sweep = new Duck('sweep', 'png');
-let tauntaun = new Duck('tauntaun');
-let unicorn = new Duck('unicorn');
-let waterCan = new Duck('water-can');
-let wineGlass = new Duck('wine-glass');
+// Local storage -- step 3 -- pull data from local storage
+let retrievedProds = localStorage.getItem('myProds');
 
-prodArr.push(bag, banana, bathroom, boots, breakfast, bubblegum, chair, cthulhu, dogDuck, dragon, pen, petSweep, scissors, shark, sweep, tauntaun, unicorn, waterCan, wineGlass);
+console.log('Retrieved prods >>> ', retrievedProds);
+
+// Local storage -- step 4 -- parse local storage data
+let parsedProds = JSON.parse(retrievedProds);
+
+console.log('Parsed prods >>> ', parsedProds);
+
+// Rebuild Prods using constructor
+if(retrievedProds) {
+  for(let i = 0; i < parsedProds.length; i++) {
+    if(parsedProds[i].name === 'sweep') {
+      let reconstructSweep = new Duck(parsedProds[i]. name, 'png');
+      reconstructSweep.views = parsedProds[i].views;
+      reconstructSweep.votes = parsedProds[i].votes;
+      prodArr.push(reconstructSweep);
+    } else {
+      let reconstructSweep = new Duck(parsedProds[i].name);
+      reconstructSweep.views = parsedProds[i].views;
+      reconstructSweep.votes = parsedProds[i].votes;
+      prodArr.push(reconstructSweep);
+    }
+  }
+} else {
+  let bag = new Duck('bag');
+  let banana = new Duck('banana');
+  let bathroom = new Duck('bathroom');
+  let boots = new Duck('boots');
+  let breakfast = new Duck('breakfast');
+  let bubblegum = new Duck('bubblegum');
+  let chair = new Duck('chair');
+  let cthulhu = new Duck('cthulhu');
+  let dogDuck = new Duck('dog-duck');
+  let dragon = new Duck('dragon');
+  let pen = new Duck('pen');
+  let petSweep = new Duck('pet-sweep');
+  let scissors = new Duck('scissors');
+  let shark = new Duck('shark');
+  let sweep = new Duck('sweep', 'png');
+  let tauntaun = new Duck('tauntaun');
+  let unicorn = new Duck('unicorn');
+  let waterCan = new Duck('water-can');
+  let wineGlass = new Duck('wine-glass');
+  
+  prodArr.push(bag, banana, bathroom, boots, breakfast, bubblegum, chair, cthulhu, dogDuck, dragon, pen, petSweep, scissors, shark, sweep, tauntaun, unicorn, waterCan, wineGlass);
+}
+
+console.log('Prod array after if/else', prodArr)
+
+console.log('Orig Prod Array', prodArr);
 
 renderImg();
 
